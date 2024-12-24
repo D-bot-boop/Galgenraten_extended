@@ -1,0 +1,6 @@
+<h2>Leaderboard</h2>
+<ul>
+    {% for player in players %}
+        <li>{{ player.username }} - {{ player.mmr }} MMR - {{ player.rank }}</li>
+    {% endfor %}
+</ul>
