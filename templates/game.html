@@ -30,6 +30,10 @@
             margin-top: 20px;
             color: red;
         }
+        .message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -40,71 +44,52 @@
         <div class="game-area mb-5">
             <h3>Wort:</h3>
             <h2 id="word-display">_ _ _ _</h2>
-
+        
+            <div>
+                <img id="hangman-image" src="/static/images/0.png" alt="Hangman" class="img-fluid" style="max-height: 300px;">
+            </div>
+        
             <div class="wrong-letters">
                 <p>Falsche Buchstaben: <span id="wrong-letters"></span></p>
             </div>
         </div>
+        
 
         <!-- Input for Guess -->
         <div class="mb-3">
             <label for="guess" class="form-label">Gib einen Buchstaben ein:</label>
             <input type="text" id="guess" maxlength="1" class="form-control guess-input">
-            <button class="btn btn-primary mt-3" onclick="submitGuess()">Rate den Buchstaben</button>
+
+            <button onclick="makeGuess()" class="btn btn-primary">Rate den Buchstaben</button>
         </div>
 
         <!-- Game Info -->
         <div class="game-info">
+            <p id="difficulty-display">Schwierigkeit: ★★★☆☆</p>
             <p id="mmr-display">MMR: 0</p>
             <p id="rank-display">Rang: Bronze III</p>
             <p id="winstreak-display">Winstreak: 0</p>
+            <p id="coins-display">Münzen: 0 ◎</p>
+        </div>
+        
+        <div class="text-center mb-3">
+            <button class="btn btn-warning btn-custom" onclick="buyHint()">Tipp kaufen (50 ◎)</button>
         </div>
 
+    
+        <div class="text-center mb-3">
+            <button class="btn btn-success btn-custom" onclick="startNewWord()">Neues Wort spielen</button>
+        </div>
+        
         <!-- Back to Home Button -->
         <div class="text-center">
-            <button class="btn btn-secondary btn-custom" onclick="goHome()">Zurück zur Startseite</button>
+            <button class="btn btn-secondary btn-custom" onclick="window.location.href='/'">Zurück zur Startseite</button>
         </div>
+
+        <p id="message" class="message"></p>
     </div>
 
-    <script>
-        function submitGuess() {
-            const guess = document.getElementById('guess').value;
-            fetch(`/guess_letter`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ letter: guess })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('word-display').textContent = data.word_display;
-                document.getElementById('wrong-letters').textContent = data.wrong_letters;
-                document.getElementById('mmr-display').textContent = `MMR: ${data.mmr}`;
-                document.getElementById('rank-display').textContent = `Rang: ${data.rank}`;
-                document.getElementById('winstreak-display').textContent = `Winstreak: ${data.winstreak}`;
-
-                document.getElementById('guess').value = '';
-            });
-        }
-
-        function goHome() {
-            window.location.href = '/';
-        }
-
-        function loadGameState() {
-            fetch(`/game_state`, {
-                method: 'GET'
-            }).then(response => response.json())
-            .then(data => {
-                document.getElementById('word-display').textContent = data.word_display;
-                document.getElementById('wrong-letters').textContent = data.wrong_letters;
-                document.getElementById('mmr-display').textContent = `MMR: ${data.mmr}`;
-                document.getElementById('rank-display').textContent = `Rang: ${data.rank}`;
-                document.getElementById('winstreak-display').textContent = `Winstreak: ${data.winstreak}`;
-            });
-        }
-
-        // Load game state on page load
-        document.addEventListener('DOMContentLoaded', loadGameState);
-    </script>
+    <!-- Externes Skript -->
+    <script src="/static/script.js"></script>
 </body>
 </html>

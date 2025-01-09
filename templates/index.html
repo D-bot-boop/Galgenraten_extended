@@ -41,21 +41,22 @@
             <table class="table table-dark table-striped">
                 <thead>
                     <tr>
-                        <th>Rang</th>
                         <th>Name</th>
                         <th>MMR</th>
+                        <th>Rang</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for player in leaderboard %}
                     <tr>
-                        <td>{{ player.name }}</td>
+                        <td>{{ player.username }}</td>
                         <td>{{ player.mmr }}</td>
                         <td>{{ player.rank }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            
             <h3>Deine Statistik</h3>
             <p>Name: {{ player_stats.name }}</p>
             <p>MMR: {{ player_stats.mmr }}</p>
@@ -119,5 +120,8 @@
         // Load leaderboard on page load
         document.addEventListener('DOMContentLoaded', loadLeaderboard);
     </script>
+    <a href="{{ url_for('reset_game_data') }}" class="btn btn-warning">Spielstand zurücksetzen</a>
+
+    
 </body>
 </html>
