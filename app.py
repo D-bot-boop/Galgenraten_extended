@@ -5,8 +5,10 @@ from models import *#db, bcrypt, User, Game
 from helpers import load_words, choose_random_word, calculate_word_difficulty, show_image, reveal_random_letter, update_highscore, define_rank, filter_words, calculate_letter_difficulty, convert_to_stars
 from flask import session
 import math
-
+import openai
 import random
+
+from dotenv import load_dotenv
 import os
 
 # Flask-Initialisierung
@@ -17,6 +19,22 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 # Erweiterungen initialisieren
 db.init_app(app)
 bcrypt.init_app(app)
+
+# .env-Datei laden
+load_dotenv()
+
+class Config:
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+if Config.OPENAI_API_KEY:
+    print("[DEBUG] OpenAI API-Key wurde erfolgreich geladen.")
+else:
+    print("[ERROR] OpenAI API-Key fehlt. Bitte überprüfe deine Konfiguration.")
+openai.api_key = Config.OPENAI_API_KEY
+
+if not openai.api_key:
+    raise RuntimeError("OpenAI API-Key ist nicht gesetzt. Bitte überprüfe deine Konfiguration.")
+
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -225,6 +243,7 @@ def guess_letter():
         mmr_loss = round(max(20, 60 - 20 * word_difficulty))
         current_user.mmr -= mmr_loss
         current_user.winstreak = 0
+        current_user.losses += 1 
         current_user.rank = define_rank(current_user)[0] 
         game_state.completed = True
         game_state.mistake_count = mistake_count
@@ -253,6 +272,16 @@ def guess_letter():
         mmr_gain = round((max(20, word_difficulty * 20) * winstreak_bonus))
         current_user.mmr += mmr_gain
         current_user.winstreak += 1
+        current_user.wins += 1  # Gewinn hinzufügen
+
+        # Aktualisiere höchste Winstreak
+        if current_user.winstreak > current_user.highest_winstreak:
+            current_user.highest_winstreak = current_user.winstreak
+
+        # Aktualisiere höchsten MMR
+        if current_user.mmr > current_user.highscore:
+            current_user.highscore = current_user.mmr
+
         current_user.coins += coins_earned
         current_user.rank = define_rank(current_user)[0] 
         game_state.completed = True
@@ -312,6 +341,9 @@ def reveal_letter():
 @login_required
 def game_state():
     game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
+    user = User.query.get(current_user.id)
+    print(f"Benutzer: {user.username}, Wins: {user.wins}, Losses: {user.losses}, Winstreak: {user.winstreak}")
+
     if not game_state:
         print("[DEBUG] Kein aktives Spiel gefunden.")
         return jsonify({"error": "Kein aktives Spiel gefunden"}), 404
@@ -393,6 +425,62 @@ def leaderboard_json():
     ]
     return jsonify(players)
 
+@app.route('/describe_word', methods=['POST'])
+@login_required
+def describe_word():
+    # Hole den aktuellen Spielstatus
+    game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
+    if not game_state:
+        return jsonify({"error": "Kein aktives Spiel gefunden."}), 404
+
+    # Prüfe, ob der Benutzer genügend Münzen hat
+    if current_user.coins < 50:
+        return jsonify({"error": "Nicht genügend Münzen für einen Tipp."}), 400
+
+    current_word = game_state.current_word
+
+    try:
+        # Anfrage an OpenAI senden
+        client = openai.Client()
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # oder "gpt-4", falls verfügbar
+            messages=[
+                {"role": "user", "content": f"Beschreibe ein deutsches Wort und nenne die Wortart des Wortes, ohne das Wort selbst zu nennen. Das zu beschreibende Wort ist '{current_word}'. Niemals darfst du das zu beschreibende Wort nennen, der Spieler muss das Wort erraten"}
+            ]
+        )
+        # Beschreibung aus der Antwort extrahieren
+        description = response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"[ERROR] OpenAI API-Fehler: {e}")
+        return jsonify({"error": "Fehler beim Generieren der Beschreibung."}), 500
+
+    # Münzen abziehen
+    current_user.coins = round(current_user.coins - 50, 2)
+    db.session.commit()
+
+    return jsonify({
+        "description": description,
+        "coins": current_user.coins
+    })
+
+
+"""
+@app.route('/get_stats', methods=['GET'])
+@login_required
+def get_stats():
+    print(f"[DEBUG] Stats für {current_user.username}: "
+          f"Wins: {current_user.wins}, Losses: {current_user.losses}, "
+          f"Winrate: {round((current_user.wins / max(current_user.wins + current_user.losses, 1)) * 100, 2)}, "
+          f"Highest Winstreak: {current_user.highest_winstreak}, Highscore: {current_user.highscore}")
+    stats = {
+        "wins": current_user.wins,
+        "losses": current_user.losses,
+        "winrate": round((current_user.wins / max(current_user.wins + current_user.losses, 1)) * 100, 2),
+        "highest_winstreak": current_user.highest_winstreak,
+        "highest_mmr": current_user.highscore,
+    }
+    return jsonify(stats)
+"""
 
 
 # Hauptfunktion

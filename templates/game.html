@@ -72,11 +72,20 @@
             <p id="coins-display">Münzen: 0 ◎</p>
         </div>
         
-        <div class="text-center mb-3">
-            <button class="btn btn-warning btn-custom" onclick="buyHint()">Tipp kaufen (50 ◎)</button>
+        <!-- Container für die Beschreibung -->
+        <div id="description-container" style="display: none; margin-top: 20px;">
+            <h5>Beschreibung:</h5>
+            <p id="description-text" style="font-style: italic;"></p>
         </div>
 
-    
+        <div class="text-center mb-3">
+            <button class="btn btn-warning btn-custom" onclick="buyHint()">Buchstabe aufdecken (50 ◎)</button>
+        </div>
+
+        <div class="text-center mb-3">
+            <button class="btn btn-info btn-custom" onclick="getDescription()">Umschreibung (50 ◎)</button>
+        </div>
+        
         <div class="text-center mb-3">
             <button class="btn btn-success btn-custom" onclick="startNewWord()">Neues Wort spielen</button>
         </div>

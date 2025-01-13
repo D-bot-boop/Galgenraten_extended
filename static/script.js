@@ -1,8 +1,37 @@
+
+// Funktion: Statistik laden (dynamisch bei Hover)
+//function loadStatsOnHover() {
+ //   const statsContainer = document.querySelector(".stats-container");
+
+//    statsContainer.addEventListener("mouseover", () => {
+//        fetch('/get_stats', { method: 'GET' })
+//            .then(response => response.json())
+//           .then(data => {
+//                // Aktualisiere die Statistik-Daten
+//                document.getElementById('stats-wins').textContent = `Gewonnene Spiele: ${data.wins}`;
+//                document.getElementById('stats-losses').textContent = `Verlorene Spiele: ${data.losses}`;
+//                document.getElementById('stats-winrate').textContent = `Gewinnwahrscheinlichkeit: ${data.winrate}%`;
+//               document.getElementById('stats-highest-winstreak').textContent = `Höchste Winstreak: ${data.highest_winstreak}`;
+//                document.getElementById('stats-highest-mmr').textContent = `Höchste MMR: ${data.highest_mmr}`;
+//           })
+//            .catch(error => {
+//                console.error('Fehler beim Laden der Statistik:', error);
+//            });
+//    });
+//}
+
+// Funktion: Statistik einmal beim Laden aktualisieren
+document.addEventListener('DOMContentLoaded', () => {
+    loadStatsOnHover();
+});
+
+
 // Funktion: Neues Wort starten
 function startNewWord() {
     fetch('/start_game', {
         method: 'POST'
-    }).then(response => response.json())
+    })
+    .then(response => response.json())
     .then(data => {
         if (data.word) {
             // Spielstatus zurücksetzen
@@ -16,11 +45,23 @@ function startNewWord() {
             document.getElementById("coins-display").textContent = `Münzen: ${data.coins.toFixed(1)} ◎`;
             document.getElementById('winstreak-display').textContent = `Winstreak: ${data.winstreak}`;
             document.getElementById('guess').disabled = false; // Eingabe aktivieren
+
+            // Beschreibung zurücksetzen
+            document.getElementById('description-container').style.display = 'none';
+            document.getElementById('description-text').textContent = '';
+
+            // Statistik aktualisieren
+            loadStats();
         } else {
             document.getElementById('message').textContent = data.error || 'Fehler beim Laden eines neuen Wortes.';
         }
+    }).catch(error => {
+        console.error("Fehler beim Starten eines neuen Spiels:", error);
+        document.getElementById('message').textContent = "Tippe Buchstaben zum Raten ein";
     });
 }
+
+
 
 // Funktion: Spielstatus abrufen
 function fetchGameState() {
@@ -46,7 +87,7 @@ function fetchGameState() {
         })
         .catch(error => {
             console.error("[DEBUG] Fehler beim Abrufen des Spielstatus:", error);
-            document.getElementById('message').textContent = "Ein Fehler ist aufgetreten.";
+            document.getElementById('message').textContent = "Beginne ein Spiel indem du einen Buchstaben rätst.";
         });
 }
 
@@ -110,7 +151,7 @@ function makeGuess() {
         })
         .catch(error => {
             console.error("[DEBUG] Fehler beim Raten eines Buchstabens:", error);
-            document.getElementById("message").textContent = "Ein Fehler ist aufgetreten.";
+            document.getElementById("message").textContent = "Ein Fehler ist aufgetreten3.";
         });
 
     letterInput.value = "";
@@ -168,9 +209,43 @@ function buyHint() {
     })
     .catch(error => {
         console.error("[DEBUG] Fehler beim Kauf eines Tipps:", error);
-        document.getElementById("message").textContent = "Ein Fehler ist aufgetreten.";
+        document.getElementById("message").textContent = "Ein Fehler ist aufgetreten4.";
     });
 }
+
+
+function getDescription() {
+    fetch('/describe_word', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById("message").textContent = data.error;
+        } else {
+            // Aktualisiere die Beschreibung und die Münzenanzeige
+            document.getElementById("description-text").textContent = data.description;
+
+            // Zeige den Container mit Animation
+            const descriptionContainer = document.getElementById("description-container");
+            descriptionContainer.style.display = 'block'; // Sichtbar machen
+            descriptionContainer.classList.add("show"); // Animation hinzufügen
+
+            // Münzenanzeige aktualisieren
+            document.getElementById("coins-display").textContent = `Münzen: ${data.coins.toFixed(1)} ◎`;
+            document.getElementById("message").textContent = "Ein Tipp wurde erfolgreich genutzt!";
+            
+            console.log(`[DEBUG] Beschreibung erhalten: ${data.description}`);
+        }
+    })
+    .catch(error => {
+        console.error("[DEBUG] Fehler beim Abrufen der Beschreibung:", error);
+        document.getElementById("message").textContent = "Ein Fehler ist aufgetreten5.";
+    });
+}
+
+
+
 
 
 // Event Listener hinzufügen: Enter-Taste aktiviert "Rate den Buchstaben"

@@ -38,7 +38,13 @@ def choose_random_word(user_id, words):
     if not words:
         return None
 
-    current_word = random.choice(words)
+    # Filtere Wörter mit mindestens 4 Buchstaben
+    filtered_words = [word for word in words if len(word) >= 4]
+    if not filtered_words:
+        return None  # Kein gültiges Wort gefunden
+
+    # Zufälliges Wort auswählen
+    current_word = random.choice(filtered_words)
     display_word = ["_" if char != "-" else "-" for char in current_word]
     mistake_count = 0
     wrong_letters = []
@@ -58,6 +64,7 @@ def choose_random_word(user_id, words):
     db.session.commit()
 
     return game_state
+
 
 
 

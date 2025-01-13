@@ -6,7 +6,6 @@ from flask_login import UserMixin
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
-# Datenbankmodelle
 class User(db.Model, UserMixin):
     """
     Repräsentiert einen registrierten Benutzer in der Anwendung.
@@ -22,11 +21,14 @@ class User(db.Model, UserMixin):
     winstreak = db.Column(db.Integer, default=0)
     highscore = db.Column(db.Integer, default=0)
 
-    # Beziehung zu GameState
-    games = db.relationship('GameState', backref='user', lazy=True)
+    # Neue Felder für Statistiken
+    wins = db.Column(db.Integer, default=0)  # Anzahl gewonnener Spiele
+    losses = db.Column(db.Integer, default=0)  # Anzahl verlorener Spiele
+    highest_winstreak = db.Column(db.Integer, default=0)  # Höchste erreichte Winstreak
 
     def __repr__(self):
         return f'<User {self.username}>'
+
 
 class GameState(db.Model):
     """

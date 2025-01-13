@@ -2,6 +2,21 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
 }
+
 #game {
     margin-top: 50px;
 }
+
+/* Beschreibung-Container mit Animation */
+#description-container {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#description-container.show {
+    display: block;
+    opacity: 1;
+}
+
+
