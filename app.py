@@ -253,6 +253,7 @@ def guess_letter():
 
         return jsonify({
             "message": f"Du hast verloren. Das Wort war '{current_word}'.",
+            "word_display": current_word,
             "mmr_change": mmr_change - mmr_loss,
             "mmr": current_user.mmr,
             "rank": current_user.rank,
