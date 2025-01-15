@@ -11,10 +11,15 @@ import random
 from dotenv import load_dotenv
 import os
 
+
+
 # Flask-Initialisierung
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'  # Lokale DB für Tests
 app.config['SECRET_KEY'] = 'your_secret_key'
+
+# Nach dem Initialisieren von `db` und `app`
+migrate = Migrate(app, db)
 
 # Erweiterungen initialisieren
 db.init_app(app)
@@ -107,6 +112,10 @@ def logout():
     logout_user()
     flash('Sie haben sich abgemeldet.', 'info')
     return redirect(url_for('login'))
+
+@app.route('/datenschutz')
+def datenschutz():
+    return render_template('datenschutz.html')
 
 @app.route('/set_language', methods=['POST'])
 @login_required
