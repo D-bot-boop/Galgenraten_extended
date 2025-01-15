@@ -189,6 +189,35 @@ function loadLeaderboard() {
         });
 }
 
+function changeLanguage() {
+    const languageSelect = document.getElementById("language");
+    const selectedLanguage = languageSelect.value;
+
+    fetch('/change_language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: selectedLanguage })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Fehler: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            console.error("Fehler beim Ändern der Sprache:", data.error);
+            alert(data.error); // Benutzer informieren
+        } else {
+            console.log("Sprache erfolgreich geändert:", data.message);
+            alert(data.message); // Benutzer informieren
+        }
+    })
+    .catch(error => {
+        console.error("Fehler beim Ändern der Sprache:", error);
+    });
+}
+
 
 function buyHint() {
     fetch('/reveal_letter', {

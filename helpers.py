@@ -31,7 +31,7 @@ def filter_words(filename):
         pass  # Datei nicht gefunden, leere Liste zurückgeben
     return filtered_words
 
-def choose_random_word(user_id, words):
+def choose_random_word(user_id, words, language="Deutsch"):
     """
     Wählt ein zufälliges Wort aus der Liste, initialisiert den Spielstatus und speichert ihn in der Datenbank.
     """
@@ -44,13 +44,13 @@ def choose_random_word(user_id, words):
         return None  # Kein gültiges Wort gefunden
 
     # Zufälliges Wort auswählen
-    current_word = random.choice(filtered_words)
+    current_word = random.choice(words)
     display_word = ["_" if char != "-" else "-" for char in current_word]
     mistake_count = 0
     wrong_letters = []
     difficulty = calculate_word_difficulty(current_word)
-    
-    # Speichere in der Datenbank
+
+    # Spielstatus speichern
     game_state = GameState(
         user_id=user_id,
         current_word=current_word,
@@ -58,7 +58,7 @@ def choose_random_word(user_id, words):
         mistake_count=mistake_count,
         wrong_letters="",
         difficulty=difficulty,
-        completed=False  # Neues Spiel ist aktiv
+        completed=False
     )
     db.session.add(game_state)
     db.session.commit()
@@ -182,6 +182,21 @@ def calculate_letter_difficulty(letter, language="Deutsch"):
         return 1
     else:
         return 1
+    
+def load_words(language="Deutsch"):
+    """
+    Lädt Wörter aus der Datei basierend auf der Sprache.
+    """
+    filename = os.path.join("static", "words", f"words_{language}.txt")
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            words = file.read().splitlines()
+            return [word for word in words if len(word) >= 4]  # Nur Wörter mit mindestens 4 Buchstaben
+    except FileNotFoundError:
+        print(f"[ERROR] Wörterliste für '{language}' nicht gefunden.")
+        return []
+
+
 
 def reveal_random_letter(user_id):
     """

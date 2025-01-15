@@ -68,13 +68,14 @@
         <div class="mb-3">
             <label for="language" class="form-label">Sprache der Wörter wählen:</label>
             <select id="language" class="form-select" onchange="changeLanguage()">
-                <option value="Deutsch">Deutsch</option>
-                <option value="Englisch">Englisch</option>
-                <option value="Französisch">Französisch</option>
-                <option value="Spanisch">Spanisch</option>
-                <option value="Chaos">Chaos</option>
+                <option value="Deutsch" {{ 'selected' if session.get('language', 'Deutsch') == 'Deutsch' else '' }}>Deutsch</option>
+                <option value="Englisch" {{ 'selected' if session.get('language') == 'Englisch' else '' }}>Englisch</option>
+                <option value="Französisch" {{ 'selected' if session.get('language') == 'Französisch' else '' }}>Französisch</option>
+                <option value="Spanisch" {{ 'selected' if session.get('language') == 'Spanisch' else '' }}>Spanisch</option>
+                <option value="Chaos" {{ 'selected' if session.get('language') == 'Chaos' else '' }}>Chaos</option>
             </select>
         </div>
+        
 
         <!-- Start Game Button -->
         <div class="text-center">

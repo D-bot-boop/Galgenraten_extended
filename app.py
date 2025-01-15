@@ -108,6 +108,15 @@ def logout():
     flash('Sie haben sich abgemeldet.', 'info')
     return redirect(url_for('login'))
 
+@app.route('/set_language', methods=['POST'])
+@login_required
+def set_language():
+    data = request.json
+    language = data.get("language", "Deutsch")  # Fallback auf Deutsch
+    session['language'] = language
+    return jsonify({"message": f"Sprache geändert zu {language}"})
+
+
 @app.route('/leaderboard')
 def leaderboard():
     top_players = User.query.order_by(User.mmr.desc()).limit(10).all()
@@ -120,11 +129,19 @@ def game():
     game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
     
     if not game_state:
-        # Starte ein neues Spiel, falls keines existiert
-        words = load_words("words_Deutsch.txt")
-        choose_random_word(current_user.id, words)
+        # Sprache aus der Session laden oder auf Deutsch zurückfallen
+        language = session.get("language", "Deutsch")
+        words = load_words(language)  # Dynamische Sprachdatei laden
+        if not words:
+            flash(f"Keine Wörter für die Sprache {language} verfügbar. Wechsel zurück zu Deutsch.", "danger")
+            session["language"] = "Deutsch"
+            words = load_words("Deutsch")
+
+        # Neues Spiel starten
+        choose_random_word(current_user.id, words, language)
     
     return render_template('game.html')
+
 
 
 def load_words_for_language(language):
@@ -134,33 +151,47 @@ def load_words_for_language(language):
     filename = os.path.join("static/words", f"words_{language}.txt")
     return filter_words(filename)
 
+
 @app.route('/change_language', methods=['POST'])
 @login_required
 def change_language():
-    """
-    Ändert die Sprache und lädt neue Wörter in die Session.
-    """
     data = request.json
     language = data.get("language", "Deutsch")
-    words = load_words_for_language(language)
-    session['words'] = words
-    session['language'] = language
-    return jsonify({"message": f"Sprache geändert zu {language}"})
+    print(f"[DEBUG] Gewählte Sprache: {language}")
+
+    supported_languages = ["Deutsch", "Englisch", "Französisch", "Spanisch", "Chaos"]
+    if language not in supported_languages:
+        return jsonify({"error": f"Sprache '{language}' wird nicht unterstützt."}), 400
+
+    words = load_words(language)
+    if not words:
+        return jsonify({"error": f"Keine Wörter für die Sprache '{language}' verfügbar."}), 404
+
+    session["language"] = language
+    print(f"[DEBUG] Sprache geändert zu: {language}")
+    return jsonify({"message": f"Sprache erfolgreich auf {language} geändert."})
+
+
+
 
 
 @app.route('/start_game', methods=['POST'])
 @login_required
 def start_game():
+    # Bestehendes Spiel abschließen
     existing_game = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
     if existing_game:
         existing_game.completed = True
         db.session.commit()
 
-    words = load_words("words_Deutsch.txt")
+    # Wörter basierend auf der Sprache laden
+    language = session.get("language", "Deutsch")
+    words = load_words(language)
     if not words:
-        return jsonify({"error": "Keine Wörter verfügbar"}), 400
+        return jsonify({"error": f"Keine Wörter verfügbar für die Sprache {language}"}), 400
 
-    game_state = choose_random_word(current_user.id, words)
+    # Neues Spiel starten
+    game_state = choose_random_word(current_user.id, words, language)
     difficulty_stars = convert_to_stars(game_state.difficulty)
 
     return jsonify({
@@ -168,9 +199,11 @@ def start_game():
         "difficulty": difficulty_stars,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
-        "coins": current_user.coins,  # Coins zurückgeben
+        "coins": current_user.coins,
         "winstreak": current_user.winstreak
     })
+
+
 
 
 @app.route('/guess_letter', methods=['POST'])
@@ -240,7 +273,7 @@ def guess_letter():
 
     if mistake_count > 7:  # Spiel verloren
         word_difficulty = calculate_word_difficulty(current_word)
-        mmr_loss = round(max(20, 60 - 20 * word_difficulty))
+        mmr_loss = round(max(20, 60 - 20 * word_difficulty) * ((-2 * math.sqrt(abs(current_user.mmr))) * 0.01 + 1.5))
         current_user.mmr -= mmr_loss
         current_user.winstreak = 0
         current_user.losses += 1 
@@ -269,8 +302,8 @@ def guess_letter():
         word_difficulty = calculate_word_difficulty(current_word)
         winstreak_bonus = 1 + 0.05 * current_user.winstreak if current_user.winstreak >= 3 else 1
         error_penalty = max(1, (7 - mistake_count))
-        coins_earned = round(2 * word_difficulty * winstreak_bonus * error_penalty)
-        mmr_gain = round((max(20, word_difficulty * 20) * winstreak_bonus))
+        coins_earned = round(4 * word_difficulty * winstreak_bonus * error_penalty)
+        mmr_gain = round((max(20, word_difficulty * 20) * winstreak_bonus) * ((-2 * math.sqrt(abs(current_user.mmr))) * 0.01 + 1.5))
         current_user.mmr += mmr_gain
         current_user.winstreak += 1
         current_user.wins += 1  # Gewinn hinzufügen
@@ -486,5 +519,4 @@ def get_stats():
 
 # Hauptfunktion
 if __name__ == '__main__':
-    words = load_words("words_Deutsch.txt")
     app.run(debug=True)

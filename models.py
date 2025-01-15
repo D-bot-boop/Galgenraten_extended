@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     # Benutzerstatistiken
     mmr = db.Column(db.Integer, default=0)
     rank = db.Column(db.String(50), default='Bronze')
-    coins = db.Column(db.Float, default=0.0)
+    coins = db.Column(db.Float, default=300.0)
     winstreak = db.Column(db.Integer, default=0)
     highscore = db.Column(db.Integer, default=0)
 
