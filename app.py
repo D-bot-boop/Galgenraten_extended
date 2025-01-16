@@ -30,9 +30,6 @@ bcrypt.init_app(app)
 
 migrate = Migrate(app, db)
 
-with app.app_context():
-    db.create_all()
-
 # .env-Datei laden
 load_dotenv()
 
