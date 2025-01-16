@@ -13,13 +13,26 @@ import os
 
 
 
-# Flask-Initialisierung
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'  # Lokale DB für Tests
-app.config['SECRET_KEY'] = 'your_secret_key'
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-# Nach dem Initialisieren von `db` und `app`
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
+
+# **Datenbank-Konfiguration**
+# Dynamisch zwischen Heroku PostgreSQL und SQLite wechseln
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///game.db')
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    # Heroku verwendet `postgres://`, während SQLAlchemy `postgresql://` erwartet
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialisiere SQLAlchemy und Flask-Migrate
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
 
 # Erweiterungen initialisieren
 db.init_app(app)
