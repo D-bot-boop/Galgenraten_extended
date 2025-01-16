@@ -35,7 +35,7 @@ migrate = Migrate(app, db)
 
 
 # Erweiterungen initialisieren
-db.init_app(app)
+#db.init_app(app)
 bcrypt.init_app(app)
 
 # .env-Datei laden
