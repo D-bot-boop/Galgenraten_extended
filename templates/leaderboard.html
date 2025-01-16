@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,3 +17,11 @@
     <script src="/static/script.js"></script>
 </body>
 </html>
+=======
+<h2>Leaderboard</h2>
+<ul>
+    {% for player in players %}
+        <li>{{ player.username }} - {{ player.mmr }} MMR - {{ player.rank }}</li>
+    {% endfor %}
+</ul>
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c

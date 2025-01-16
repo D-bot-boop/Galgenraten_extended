@@ -2,15 +2,23 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_migrate import Migrate  
 from models import *#db, bcrypt, User, Game
+<<<<<<< HEAD
 from helpers import load_words, choose_random_word, calculate_word_difficulty, show_image, reveal_random_letter, update_highscore, define_rank, filter_words, calculate_letter_difficulty, convert_to_stars
 from flask import session
 import math
 import openai
+=======
+from helpers import load_words, choose_random_word, show_image, reveal_random_letter, update_highscore, define_rank, filter_words, calculate_letter_difficulty, convert_to_stars
+from flask import session
+import math
+
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 import random
 
 from dotenv import load_dotenv
 import os
 
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
@@ -59,6 +67,27 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+=======
+# Flask-Initialisierung
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'  # Lokale DB für Tests
+app.config['SECRET_KEY'] = 'your_secret_key'
+
+# Erweiterungen initialisieren
+db.init_app(app)
+bcrypt.init_app(app)
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+migrate = Migrate(app, db)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 # Routen
 @app.route('/')
 def index():
@@ -121,6 +150,7 @@ def logout():
     flash('Sie haben sich abgemeldet.', 'info')
     return redirect(url_for('login'))
 
+<<<<<<< HEAD
 @app.route('/datenschutz')
 def datenschutz():
     return render_template('datenschutz.html')
@@ -134,6 +164,8 @@ def set_language():
     return jsonify({"message": f"Sprache geändert zu {language}"})
 
 
+=======
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 @app.route('/leaderboard')
 def leaderboard():
     top_players = User.query.order_by(User.mmr.desc()).limit(10).all()
@@ -146,6 +178,7 @@ def game():
     game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
     
     if not game_state:
+<<<<<<< HEAD
         # Sprache aus der Session laden oder auf Deutsch zurückfallen
         language = session.get("language", "Deutsch")
         words = load_words(language)  # Dynamische Sprachdatei laden
@@ -156,11 +189,19 @@ def game():
 
         # Neues Spiel starten
         choose_random_word(current_user.id, words, language)
+=======
+        # Starte ein neues Spiel, falls keines existiert
+        words = load_words("words_Deutsch.txt")
+        choose_random_word(current_user.id, words)
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     
     return render_template('game.html')
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 def load_words_for_language(language):
     """
     Lädt Wörter basierend auf der gewählten Sprache aus einer Datei.
@@ -168,6 +209,7 @@ def load_words_for_language(language):
     filename = os.path.join("static/words", f"words_{language}.txt")
     return filter_words(filename)
 
+<<<<<<< HEAD
 
 @app.route('/change_language', methods=['POST'])
 @login_required
@@ -190,17 +232,35 @@ def change_language():
 
 
 
+=======
+@app.route('/change_language', methods=['POST'])
+@login_required
+def change_language():
+    """
+    Ändert die Sprache und lädt neue Wörter in die Session.
+    """
+    data = request.json
+    language = data.get("language", "Deutsch")
+    words = load_words_for_language(language)
+    session['words'] = words
+    session['language'] = language
+    return jsonify({"message": f"Sprache geändert zu {language}"})
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 
 
 @app.route('/start_game', methods=['POST'])
 @login_required
 def start_game():
+<<<<<<< HEAD
     # Bestehendes Spiel abschließen
+=======
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     existing_game = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
     if existing_game:
         existing_game.completed = True
         db.session.commit()
 
+<<<<<<< HEAD
     # Wörter basierend auf der Sprache laden
     language = session.get("language", "Deutsch")
     words = load_words(language)
@@ -223,26 +283,46 @@ def start_game():
 
 
 
+=======
+    words = load_words("words_Deutsch.txt")
+    if not words:
+        return jsonify({"error": "Keine Wörter verfügbar"}), 400
+
+    game_state = choose_random_word(current_user.id, words)
+    return jsonify({
+        "word": " ".join(game_state.display_word),
+        "difficulty": convert_to_stars(game_state.difficulty)
+    })
+
+
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 @app.route('/guess_letter', methods=['POST'])
 @login_required
 def guess_letter():
     data = request.json
     user_input = data.get('letter', '').lower()
 
+<<<<<<< HEAD
     print(f"[DEBUG] Eingegebener Buchstabe: {user_input}")
 
+=======
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     if len(user_input) != 1 or not user_input.isalpha():
         return jsonify({"error": "Ungültiger Buchstabe"}), 400
 
     game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
     if not game_state:
+<<<<<<< HEAD
         print("[DEBUG] Kein aktives Spiel gefunden.")
+=======
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
         return jsonify({"error": "Kein aktives Spiel gefunden"}), 404
 
     current_word = game_state.current_word
     display_word = list(game_state.display_word)
     mistake_count = game_state.mistake_count
     wrong_letters = game_state.wrong_letters.split(",") if game_state.wrong_letters else []
+<<<<<<< HEAD
     mmr_change = 0
     difficulty_stars = convert_to_stars(game_state.difficulty)
 
@@ -365,16 +445,55 @@ def guess_letter():
     #difficulty_stars = convert_to_stars(game_state.difficulty)
 
     print(f"[DEBUG] Neue MMR: {current_user.mmr}")
+=======
+
+    if user_input in display_word or user_input in wrong_letters:
+        return jsonify({"error": "Buchstabe wurde bereits geraten"}), 400
+
+    if user_input in current_word:
+        for i, char in enumerate(current_word):
+            if char == user_input:
+                display_word[i] = user_input
+    else:
+        mistake_count += 1
+        wrong_letters.append(user_input)
+
+    game_state.display_word = "".join(display_word)
+    game_state.mistake_count = mistake_count
+    game_state.wrong_letters = ",".join(wrong_letters)
+
+    if mistake_count >= 7:
+        game_state.completed = True
+        db.session.commit()
+        return jsonify({
+            "message": f"Du hast verloren. Das Wort war '{current_word}'.",
+            "game_over": True
+        })
+
+    if "_" not in display_word:
+        game_state.completed = True
+        db.session.commit()
+        return jsonify({
+            "message": f"Glückwunsch! Du hast das Wort '{current_word}' erraten!",
+            "game_over": True
+        })
+
+    db.session.commit()
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     return jsonify({
         "word_display": " ".join(display_word),
         "wrong_letters": wrong_letters,
         "mistake_count": mistake_count,
+<<<<<<< HEAD
         "image_path": image_path,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
         "mmr_change": mmr_change,
         "message": "Weiter raten!",
         "difficulty": difficulty_stars
+=======
+        "message": "Weiter raten!"
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     })
 
 
@@ -382,16 +501,23 @@ def guess_letter():
 @login_required
 def reveal_letter():
     result = reveal_random_letter(current_user.id)
+<<<<<<< HEAD
     if "error" in result:
         return jsonify({"error": result["error"]}), 400
     return jsonify(result)
 
 
 
+=======
+    return jsonify(result)
+
+
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
 @app.route('/game_state', methods=['GET'])
 @login_required
 def game_state():
     game_state = GameState.query.filter_by(user_id=current_user.id, completed=False).first()
+<<<<<<< HEAD
     user = User.query.get(current_user.id)
     print(f"Benutzer: {user.username}, Wins: {user.wins}, Losses: {user.losses}, Winstreak: {user.winstreak}")
 
@@ -405,14 +531,30 @@ def game_state():
     print(f"[DEBUG] Bildpfad: {image_path}")
 
     # Daten zurückgeben
+=======
+    if not game_state:
+        return jsonify({"error": "Kein aktives Spiel gefunden"}), 404
+
+    image_path = show_image(game_state.mistake_count)
+    stars = convert_to_stars(game_state.difficulty)
+
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     return jsonify({
         "word_display": " ".join(game_state.display_word),
         "wrong_letters": game_state.wrong_letters.split(",") if game_state.wrong_letters else [],
         "mistake_count": game_state.mistake_count,
+<<<<<<< HEAD
         "image_path": image_path,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
         "winstreak": current_user.winstreak,
+=======
+        "image_path": image_path or "/static/images/default.png",
+        "mmr": current_user.mmr,
+        "rank": current_user.rank,
+        "winstreak": current_user.winstreak,
+        "difficulty": stars
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     })
 
 
@@ -467,6 +609,7 @@ def reset_game_data_confirm():
 
     return render_template('reset_success.html')
 
+<<<<<<< HEAD
 @app.route('/leaderboard/json')
 def leaderboard_json():
     top_players = User.query.order_by(User.mmr.desc()).limit(10).all()
@@ -536,4 +679,10 @@ def get_stats():
 
 # Hauptfunktion
 if __name__ == '__main__':
+=======
+
+# Hauptfunktion
+if __name__ == '__main__':
+    words = load_words("words_Deutsch.txt")
+>>>>>>> c8608188decfb7e1b99c19a11411300344154a7c
     app.run(debug=True)
