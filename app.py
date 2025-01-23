@@ -287,7 +287,7 @@ def guess_letter():
 
     if mistake_count > 7:  # Spiel verloren
         word_difficulty = calculate_word_difficulty(current_word)
-        mmr_loss = round(max(20, 60 - 20 * word_difficulty) * ((-2 * math.sqrt(abs(current_user.mmr))) * 0.01 + 1.5))
+        mmr_loss = round(max(20, 60 - 20 * word_difficulty) * (1 + 0.0005 * abs(current_user.mmr)))
         current_user.mmr -= mmr_loss
         current_user.winstreak = 0
         current_user.losses += 1 
