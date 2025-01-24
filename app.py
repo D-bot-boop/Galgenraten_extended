@@ -369,6 +369,7 @@ def guess_letter():
         "image_path": image_path,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
+        "coins": current_user.coins,
         "mmr_change": mmr_change,
         "message": "Weiter raten!",
         "difficulty": difficulty_stars
@@ -407,6 +408,7 @@ def game_state():
         "wrong_letters": game_state.wrong_letters.split(",") if game_state.wrong_letters else [],
         "mistake_count": game_state.mistake_count,
         "image_path": image_path,
+        "coins": current_user.coins,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
         "winstreak": current_user.winstreak,
