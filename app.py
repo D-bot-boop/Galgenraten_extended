@@ -72,11 +72,15 @@ def register():
     if request.method == 'POST':
         username = request.form['username']  # Benutzername aus dem Formular
         password = request.form['password']  # Passwort aus dem Formular
+        confirm_password = request.form['confirm_password']  # Passwort-Bestätigung
+        
+        # Überprüfen, ob die Passwörter übereinstimmen
+        if password != confirm_password:
+            flash('Passwörter stimmen nicht überein.', 'danger')
+            return render_template('register.html')
 
-        # Passwort-Hash generieren
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        # Neuen Benutzer erstellen und in die Datenbank speichern
+        
         user = User(username=username, password=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -103,7 +107,7 @@ def login():
         # Überprüfen, ob der Benutzer existiert und das Passwort korrekt ist
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash('Login erfolgreich!', 'success')
+            #flash('Login erfolgreich!', 'success')
             return redirect(url_for('index'))  # Weiterleitung zur Startseite oder Dashboard
         else:
             flash('Falsches Passwort oder Benutzername', 'danger')
