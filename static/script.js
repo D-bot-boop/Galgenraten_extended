@@ -50,6 +50,8 @@ function startNewWord() {
             document.getElementById('description-container').style.display = 'none';
             document.getElementById('description-text').textContent = '';
 
+            document.getElementById("guess").focus();
+
             // Statistik aktualisieren
             loadStats();
         } else {
@@ -234,6 +236,8 @@ function buyHint() {
             document.getElementById("message").textContent = data.message;
 
             console.log(`[DEBUG] Buchstabe aufgedeckt: ${data.message}`);
+
+            document.getElementById("guess").focus();
         }
     })
     .catch(error => {
@@ -265,6 +269,8 @@ function getDescription() {
             document.getElementById("message").textContent = "Ein Tipp wurde erfolgreich genutzt!";
             
             console.log(`[DEBUG] Beschreibung erhalten: ${data.description}`);
+
+            document.getElementById("guess").focus();
         }
     })
     .catch(error => {

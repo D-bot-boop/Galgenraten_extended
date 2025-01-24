@@ -314,9 +314,9 @@ def guess_letter():
     if "_" not in display_word:
         print("[DEBUG] Spiel gewonnen.")
         word_difficulty = calculate_word_difficulty(current_word)
-        winstreak_bonus = 1 + 0.05 * current_user.winstreak if current_user.winstreak >= 3 else 1
+        winstreak_bonus = 1 + 0.025 * current_user.winstreak if current_user.winstreak >= 3 else 1
         error_penalty = max(1, (7 - mistake_count))
-        coins_earned = round(4 * word_difficulty * winstreak_bonus * error_penalty)
+        coins_earned = round(min(50, (4 * word_difficulty * winstreak_bonus * error_penalty)))
         mmr_gain = round((max(20, word_difficulty * 20) * winstreak_bonus) * ((-2 * math.sqrt(abs(current_user.mmr))) * 0.01 + 1.5))
         current_user.mmr += mmr_gain
         current_user.winstreak += 1
