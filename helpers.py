@@ -340,8 +340,14 @@ def define_rank(user):
         rank, subdivision, color = "Champion", "II", "#91DFFF"
     elif mmr < 2400:
         rank, subdivision, color = "Champion", "I", "#91DFFF"
-    else:
+    elif mmr < 3000:
         rank, subdivision, color = "Grand Champion", "", "#ffdf00"
+    elif mmr < 4000:
+        rank, subdivision, color = "Titan", "", "#ffdf00"
+    elif mmr < 5000:
+        rank, subdivision, color = "Legend", "", "#ffdf00"
+    else:
+        rank, subdivision, color = "Cheater", "", "#7700d4"
 
     user.rank = f"{rank} {subdivision}"
     db.session.commit()

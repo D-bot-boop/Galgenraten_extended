@@ -320,7 +320,7 @@ def guess_letter():
         mmr_gain = round((max(20, word_difficulty * 20) * winstreak_bonus) * ((-2 * math.sqrt(abs(current_user.mmr))) * 0.01 + 1.5))
         current_user.mmr += mmr_gain
         current_user.winstreak += 1
-        current_user.wins += 1  # Gewinn hinzufügen
+        current_user.wins += 1 
 
         # Aktualisiere höchste Winstreak
         if current_user.winstreak > current_user.highest_winstreak:
