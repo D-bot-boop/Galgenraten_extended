@@ -345,7 +345,7 @@ def define_rank(user):
     elif mmr < 4000:
         rank, subdivision, color = "Titan", "", "#ffdf00"
     elif mmr < 5000:
-        rank, subdivision, color = "Legend", "", "#ffdf00"
+        rank, subdivision, color = "Legende", "", "#ffdf00"
     else:
         rank, subdivision, color = "Cheater", "", "#7700d4"
 
