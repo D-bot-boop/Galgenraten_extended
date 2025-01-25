@@ -287,26 +287,31 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchGameState();
 
     const guessInput = document.getElementById("guess");
+
+    // Enter-Taste: Buchstaben raten
     guessInput.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
             makeGuess(); // Buchstaben raten
         }
     });
 
-    
     // Hotkeys hinzufügen
     document.addEventListener("keydown", (event) => {
         switch (event.key) {
             case "1": // Hotkey 1: Buchstabe aufdecken
+                event.preventDefault(); // Verhindert, dass "1" ins Eingabefeld geschrieben wird
                 buyHint();
                 break;
             case "2": // Hotkey 2: Umschreibung anfordern
+                event.preventDefault(); // Verhindert, dass "2" ins Eingabefeld geschrieben wird
                 getDescription();
                 break;
             case "3": // Hotkey 3: Neues Spiel starten
+                event.preventDefault(); // Verhindert, dass "3" ins Eingabefeld geschrieben wird
                 startNewWord();
                 break;
             case "4": // Hotkey 4: Zur Startseite zurückkehren
+                event.preventDefault(); // Verhindert, dass "4" ins Eingabefeld geschrieben wird
                 window.location.href = "/"; // URL zur Startseite
                 break;
             default:
