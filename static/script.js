@@ -281,9 +281,7 @@ function getDescription() {
 
 
 
-
-
-// Event Listener hinzufügen: Enter-Taste aktiviert "Rate den Buchstaben"
+// Event Listener hinzufügen: Enter-Taste und Hotkeys
 document.addEventListener('DOMContentLoaded', () => {
     loadLeaderboard();
     fetchGameState();
@@ -292,6 +290,28 @@ document.addEventListener('DOMContentLoaded', () => {
     guessInput.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
             makeGuess(); // Buchstaben raten
+        }
+    });
+
+    
+    // Hotkeys hinzufügen
+    document.addEventListener("keydown", (event) => {
+        switch (event.key) {
+            case "1": // Hotkey 1: Buchstabe aufdecken
+                buyHint();
+                break;
+            case "2": // Hotkey 2: Umschreibung anfordern
+                getDescription();
+                break;
+            case "3": // Hotkey 3: Neues Spiel starten
+                startNewWord();
+                break;
+            case "4": // Hotkey 4: Zur Startseite zurückkehren
+                window.location.href = "/"; // URL zur Startseite
+                break;
+            default:
+                // Andere Tasten ignorieren
+                break;
         }
     });
 });
