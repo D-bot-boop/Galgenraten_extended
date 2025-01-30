@@ -349,11 +349,11 @@ def guess_letter():
         "mmr_change": mmr_change + mmr_gain,
         "mmr": current_user.mmr,
         "rank": current_user.rank,
-        "image_path": image_path,  # Bild bleibt gleich
+        "image_path": image_path,  
         "winstreak": current_user.winstreak,
-        "coins": current_user.coins,  # Münzen zurückgeben
+        "coins": current_user.coins,  
         "coins_earned": coins_earned,
-        "difficulty": difficulty_stars,  # Schwierigkeit immer zurückgeben
+        "difficulty": difficulty_stars,  
         "game_over": True
         })
 
@@ -463,7 +463,7 @@ def reset_game_data_confirm():
     # Spielstand zurücksetzen
     GameState.query.filter_by(user_id=current_user.id).delete()
     current_user.mmr = 0
-    current_user.coins = 0
+    current_user.coins = 300
     current_user.winstreak = 0
     current_user.highscore = 0
     db.session.commit()
@@ -499,7 +499,7 @@ def describe_word():
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",  # oder "gpt-4", falls verfügbar
             messages=[
-                {"role": "user", "content": f"Beschreibe ein deutsches Wort und nenne die Wortart des Wortes, ohne das Wort selbst zu nennen. Das zu beschreibende Wort ist '{current_word}'. Niemals darfst du das zu beschreibende Wort nennen, der Spieler muss das Wort erraten"}
+                {"role": "user", "content": f"Beschreibe ein deutsches Wort ohne das Wort selbst zu nennen und nenne die Wortart des Wortes. Das zu beschreibende Wort ist '{current_word}'. Niemals darfst du das zu beschreibende Wort nennen, der Spieler muss das Wort erraten"}
             ]
         )
         # Beschreibung aus der Antwort extrahieren
